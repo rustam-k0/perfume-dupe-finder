@@ -1,11 +1,11 @@
 ```markdown
-# Perfume Twins
+Perfume Twins
 
-A Telegram bot that finds expensive original perfumes and pairs them with budget-friendly clones. Includes savings calculation.
+A Telegram bot that finds expensive original perfumes and pairs them with budget-friendly clones.
 
 ---
 
-## Project Structure
+Project Structure
 
 ```
 
@@ -26,21 +26,20 @@ perfume-bot/
 
 ---
 
-## 🗄️ Database Structure
+🗄️ Database Structure
 
-### 1. `UserMessages`  
+1. `UserMessages`
 Logs user queries for analytics.
 
-| Column      | Type                      | Description                                  |
-| ----------- | ------------------------- | -------------------------------------------- |
-| `id`        | SERIAL PRIMARY KEY        | Unique ID                                    |
-| `user_id`   | BIGINT                    | Telegram user ID                             |
-| `timestamp` | TIMESTAMP WITH TIME ZONE  | Message time                                 |
-| `message`   | TEXT                      | Original message                             |
-| `status`    | TEXT                      | Query status (`success`, `fail`, `start`)    |
-| `notes`     | TEXT                      | Extra info (fuzzy match, error reason)       |
-
-### 2. `OriginalPerfume`  
+| Column      | Type                      | Description     
+| ----------- | ------------------------- | ---------
+| `id`        | SERIAL PRIMARY KEY        | Unique ID   
+| `user_id`   | BIGINT                    | Telegram user ID  
+| `timestamp` | TIMESTAMP WITH TIME ZONE  | Message time
+| `message`   | TEXT                      | Original message    
+| `status`    | TEXT                      | Query status
+| `notes`     | TEXT                      | Extra info 
+2. `OriginalPerfume`
 Info about original perfumes.
 
 | Column      | Type           | Description               |
@@ -51,23 +50,23 @@ Info about original perfumes.
 | `price_eur` | REAL           | Price in EUR              |
 | `url`       | TEXT           | Product page              |
 
-### 3. `CopyPerfume`  
+3. `CopyPerfume`
 Info about clones/alternatives.
 
-| Column         | Type           | Description 
+| Column         | Type           | Description
 | -------------- | -------------- | ----------
-| `id`           | TEXT PRIMARY KEY | Unique ID                            |
-| `original_id`  | TEXT           | FK to `OriginalPerfume.id`             |
-| `brand`        | TEXT           | Clone brand                            |
-| `name`         | TEXT           | Clone name                             |
-| `price_eur`    | REAL           | Price in EUR                           |
-| `url`          | TEXT           | Product link                           |
-| `notes`        | TEXT           | Extra notes                            |
-| `saved_amount` | REAL | Savings % `(orig - dupe) / orig * 100` |
+| `id`           | TEXT PRIMARY KEY | Unique ID  
+| `original_id`  | TEXT           | FK to `OriginalPerfume.id
+| `brand`        | TEXT           | Clone brand       |
+| `name`         | TEXT           | Clone name 
+| `price_eur`    | REAL           | Price in EUR
+| `url`          | TEXT           | Product link 
+| `notes`        | TEXT           | Extra notes 
+| `saved_amount` | REAL          | Savings % `(orig - dupe) / orig * 100` |
 
 ---
 
-## 🚀 How to Run
+🚀 How to Run
 
 1. Install dependencies:
    ```bash
@@ -77,8 +76,8 @@ Info about clones/alternatives.
 2. Create `.env` in the root and add settings:
 
    ```
-   BOT_TOKEN="YOUR_TOKEN"
-   WEBHOOK_URL="YOUR_WEBHOOK_URL"
+   BOTTOKEN="YOURTOKEN"
+   WEBHOOKURL="YOURWEBHOOK_URL"
    BOT_LANG="ru"
 
    DATABASE_URL="postgresql://user:password@host/dbname"
@@ -92,7 +91,7 @@ Info about clones/alternatives.
 
 ---
 
-## Analytics
+Analytics
 
 Use `analytics.py` for stats.
 
@@ -108,8 +107,3 @@ Outputs:
 * Query stats (`success`, `fail`, `start`)
 * 10 last failed queries
 * 10 last fuzzy matches
-
-```
-
-Хочешь, я сделаю ещё более минималистичный вариант — прям «для GitHub», максимум полстраницы?
-```
