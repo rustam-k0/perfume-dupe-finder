@@ -1,109 +1,123 @@
-```markdown
-Perfume Twins
+### 📖 About the Project
 
-A Telegram bot that finds expensive original perfumes and pairs them with budget-friendly clones.
+**Perfume Twins** helps users discover affordable alternatives to expensive original perfumes. By querying the bot, users can find "dupes" or clones that match the scent profile of luxury brands, complete with price comparisons and direct purchase links.
 
----
+### 📂 Project Structure
 
-Project Structure
+The codebase is organized as a modular Python application using Flask (via `web.py`) for webhook handling.
+
+```text
+perfume-bot/
+├── web.py            # Entry point: FastAPI/Flask app & Webhook handler
+├── search.py         # Core logic: Search algorithms for matching perfumes
+├── database.py       # ORM & Database connection management
+├── formatter.py      # UI: Formats text responses for Telegram
+├── followup.py       # Logic: Handles conversation flow and user context
+├── i18n.py           # Localization: Language handling
+├── analyze_db.py     # Analytics: Script to generate DB statistics
+├── utils.py          # Helper functions
+├── requirements.txt  # Python dependencies
+└── .env              # Environment variables (Configuration)
 
 ```
 
-perfume-bot/
-│
-├── web.py
-├── database.py
-├── search.py
-├── formatter.py
-├── followup.py
-├── utils.py
-├── i18n.py
-├── analyze_db.py
-├── requirements.txt
-└── .env
+---
 
-````
+### 🗄️ Database Schema
+
+The project uses PostgreSQL. Below is the schema design for tracking users and mapping perfume relationships.
+
+#### 1. UserMessages (`UserMessages`)
+
+*Stores interaction logs for analytics and debugging.*
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | `SERIAL PK` | Unique Log ID |
+| `user_id` | `BIGINT` | Telegram User ID |
+| `timestamp` | `TIMESTAMP` | Time of message receipt |
+| `message` | `TEXT` | Raw text sent by user |
+| `status` | `TEXT` | Query outcome (e.g., `success`, `fail`) |
+| `notes` | `TEXT` | Debugging info or errors |
+
+#### 2. Original Perfumes (`OriginalPerfume`)
+
+*Catalog of luxury/reference fragrances.*
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | `TEXT PK` | Unique SKU/ID |
+| `brand` | `TEXT` | Brand Name (e.g., "Tom Ford") |
+| `name` | `TEXT` | Perfume Name (e.g., "Tobacco Vanille") |
+| `price_eur` | `REAL` | Market Price (€) |
+| `url` | `TEXT` | Link to official product page |
+
+#### 3. Clones / Alternatives (`CopyPerfume`)
+
+*Budget-friendly alternatives linked to originals.*
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | `TEXT PK` | Unique SKU/ID |
+| `original_id` | `TEXT` | **FK** linking to `OriginalPerfume.id` |
+| `brand` | `TEXT` | Clone Brand (e.g., "Lattafa") |
+| `name` | `TEXT` | Clone Name |
+| `price_eur` | `REAL` | Market Price (€) |
+| `saved_amount` | `REAL` | Calculated savings %: `(orig - dupe) / orig * 100` |
+| `url` | `TEXT` | Link to purchase |
+| `notes` | `TEXT` | Scent notes or specific differences |
 
 ---
 
-🗄️ Database Structure
+### 🚀 Installation & Setup
 
-1. `UserMessages`
-Logs user queries for analytics.
+**Prerequisites:** Python 3.9+, PostgreSQL.
 
-| Column      | Type                      | Description     
-| ----------- | ------------------------- | ---------
-| `id`        | SERIAL PRIMARY KEY        | Unique ID   
-| `user_id`   | BIGINT                    | Telegram user ID  
-| `timestamp` | TIMESTAMP WITH TIME ZONE  | Message time
-| `message`   | TEXT                      | Original message    
-| `status`    | TEXT                      | Query status
-| `notes`     | TEXT                      | Extra info 
-2. `OriginalPerfume`
-Info about original perfumes.
-
-| Column      | Type           | Description               |
-| ----------- | -------------- | ------------------------- |
-| `id`        | TEXT PRIMARY KEY | Unique ID               |
-| `brand`     | TEXT           | Brand                     |
-| `name`      | TEXT           | Perfume name              |
-| `price_eur` | REAL           | Price in EUR              |
-| `url`       | TEXT           | Product page              |
-
-3. `CopyPerfume`
-Info about clones/alternatives.
-
-| Column         | Type           | Description
-| -------------- | -------------- | ----------
-| `id`           | TEXT PRIMARY KEY | Unique ID  
-| `original_id`  | TEXT           | FK to `OriginalPerfume.id
-| `brand`        | TEXT           | Clone brand       |
-| `name`         | TEXT           | Clone name 
-| `price_eur`    | REAL           | Price in EUR
-| `url`          | TEXT           | Product link 
-| `notes`        | TEXT           | Extra notes 
-| `saved_amount` | REAL          | Savings % `(orig - dupe) / orig * 100` |
-
----
-
-🚀 How to Run
-
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-````
-
-2. Create `.env` in the root and add settings:
-
-   ```
-   BOTTOKEN="YOURTOKEN"
-   WEBHOOKURL="YOURWEBHOOK_URL"
-   BOT_LANG="ru"
-
-   DATABASE_URL="postgresql://user:password@host/dbname"
-   ```
-
-3. Start bot:
-
-   ```bash
-   gunicorn web:app
-   ```
-
----
-
-Analytics
-
-Use `analytics.py` for stats.
+**1. Install Dependencies**
 
 ```bash
-python3 analytics.py
+pip install -r requirements.txt
+
 ```
 
-Outputs:
+**2. Configuration**
+Create a `.env` file in the root directory:
 
-* Total originals and clones
-* 5 latest perfumes
-* 5 clones with highest savings
-* Query stats (`success`, `fail`, `start`)
-* 10 last failed queries
-* 10 last fuzzy matches
+```ini
+# Telegram API
+BOTTOKEN="your_telegram_bot_token"
+WEBHOOKURL="https://your-domain.com/webhook"
+BOT_LANG="ru" 
+
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+
+```
+
+**3. Run the Bot**
+Use Gunicorn to serve the application in production:
+
+```bash
+gunicorn web:app
+
+```
+
+---
+
+### 📊 Analytics
+
+Run the analytics script to view database health and user query performance.
+
+```bash
+python3 analyze_db.py
+
+```
+
+**Output Includes:**
+
+* **Inventory:** Total count of Originals vs. Clones.
+* **Recents:** 5 most recently added perfumes.
+* **Top Savers:** 5 clones offering the highest percentage savings.
+* **Performance:** Query stats (`success` vs `fail` rates).
+* **Misses:** Last 10 failed queries (useful for filling DB gaps).
+* **Fuzzy Logic:** Last 10 fuzzy matches (to check search accuracy).
